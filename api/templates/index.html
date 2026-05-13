@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obras Públicas — Buscador</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --accent: #00e5a0;
+            --accent2: #005cff;
+            --muted: #3a3a5c;
+            --text: #e8e8f0;
+            --text-dim: #6b6b8a;
+            --danger: #ff4566;
+            --card-bg: #13131c;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /*  GRID BACKGROUND  */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /*  GLOW  */
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 229, 160, 0.06) 0%, transparent 70%);
+            top: -200px;
+            left: -100px;
+            pointer-events: none;
+            z-index: 0;
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+
+        .glow-orb2 {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 92, 255, 0.05) 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            pointer-events: none;
+            z-index: 0;
+            animation: drift 15s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(40px, 30px);
+            }
+        }
+
+        /*  LAYOUT  */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /*  HEADER  */
+        header {
+            padding: 48px 0 40px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .logo-block h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            color: var(--text);
+        }
+
+        .logo-block h1 span {
+            color: var(--accent);
+        }
+
+        .logo-block p {
+            margin-top: 6px;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--muted);
+            transition: background 0.4s;
+        }
+
+        .status-dot.ok {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .status-dot.err {
+            background: var(--danger);
+        }
+
+        /*  SEARCH PANEL  */
+        .search-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease 0.1s both;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-input-wrap {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input-wrap::before {
+            content: '⌕';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+        }
+
+        .search-input-wrap input {
+            padding-left: 36px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.1);
+        }
+
+        select option {
+            background: var(--surface);
+        }
+
+        /* top selector */
+        .top-wrap {
+            width: 110px;
+            flex-shrink: 0;
+        }
+
+        /*  FILTERS GRID  */
+        .filters-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .filters-toggle:hover {
+            color: var(--accent);
+        }
+
+        .filters-toggle .arrow {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .filters-toggle.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+        }
+
+        .filters-grid.open {
+            max-height: 600px;
+            opacity: 1;
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+        }
+
+        .range-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        /*  BTN  */
+        .btn-search {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            padding: 11px 28px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-search:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+        }
+
+        .btn-search:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /*  RESULTS HEADER  */
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            min-height: 24px;
+        }
+
+        .results-count {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .results-count strong {
+            color: var(--accent);
+        }
+
+        /*  LOADING  */
+        .loader {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .loader.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--muted);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /*  CARDS  */
+        .results-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 22px;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+            animation: fadeUp 0.35s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+            box-shadow: -4px 0 20px rgba(0, 229, 160, 0.08);
+        }
+
+        .card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .card-nombre {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .sim-badge {
+            flex-shrink: 0;
+            font-size: 0.68rem;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(0, 229, 160, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(0, 229, 160, 0.2);
+            white-space: nowrap;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+        }
+
+        .card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-meta .tag {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 7px;
+            color: var(--text-dim);
+        }
+
+        .card-meta .tag.estado-fin {
+            color: var(--accent);
+            border-color: rgba(0, 229, 160, 0.25);
+        }
+
+        .card-meta .tag.estado-eje {
+            color: #ffd166;
+            border-color: rgba(255, 209, 102, 0.25);
+        }
+
+        .card-meta .tag.estado-par {
+            color: var(--danger);
+            border-color: rgba(255, 69, 102, 0.25);
+        }
+
+        .card-bottom {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .monto {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .avance-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avance-bar {
+            width: 80px;
+            height: 4px;
+            background: var(--muted);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .avance-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        .avance-pct {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /*  MODAL  */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            animation: slideUp 0.25s ease;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-dim);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .modal h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-right: 40px;
+            line-height: 1.4;
+            color: var(--text);
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .detail-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-size: 0.82rem;
+            color: var(--text);
+            word-break: break-word;
+        }
+
+        .detail-value.highlight {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /*  EMPTY / ERROR  */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+            display: none;
+        }
+
+        .empty-state.active {
+            display: block;
+        }
+
+        .empty-state .icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 0.82rem;
+        }
+
+        /*  ANIMATIONS  */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--muted);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow-orb"></div>
+    <div class="glow-orb2"></div>
+
+    <div class="wrapper">
+
+        <!-- HEADER -->
+        <header>
+            <div class="logo-block">
+                <h1>Obras<span>.</span>PE</h1>
+                <p>Sistema de búsqueda semántica — Infobras</p>
+            </div>
+            <div class="status-pill">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">conectando...</span>
+            </div>
+        </header>
+
+        <!-- SEARCH PANEL -->
+        <div class="search-panel">
+            <div class="search-row">
+                <div class="search-input-wrap">
+                    <input type="text" id="queryInput"
+                        placeholder="ej. mejoramiento de agua potable en zonas rurales..." autocomplete="off">
+                </div>
+                <div class="top-wrap">
+                    <select id="topSelect" title="Cantidad de resultados">
+                        <option value="5">Top 5</option>
+                        <option value="10" selected>Top 10</option>
+                        <option value="15">Top 15</option>
+                        <option value="20">Top 20</option>
+                        <option value="25">Top 25</option>
+                    </select>
+                </div>
+                <button class="btn-search" id="btnSearch">Buscar</button>
+            </div>
+
+            <!-- FILTROS -->
+            <button class="filters-toggle" id="filtersToggle">
+                <span class="arrow">▶</span> Filtros avanzados
+            </button>
+
+            <div class="filters-grid" id="filtersGrid">
+
+                <div class="filter-group">
+                    <label>Departamento</label>
+                    <select id="fDepartamento">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Provincia</label>
+                    <select id="fProvincia">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Distrito</label>
+                    <select id="fDistrito">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Nivel de gobierno</label>
+                    <select id="fNivel">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Sector</label>
+                    <select id="fSector">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Naturaleza</label>
+                    <select id="fNaturaleza">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Tipo nivel 1</label>
+                    <select id="fTipo1">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Tipo nivel 2</label>
+                    <select id="fTipo2">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Modalidad</label>
+                    <select id="fModalidad">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Estado</label>
+                    <select id="fEstado">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group" style="grid-column: span 2;">
+                    <label>Monto contrato (S/)</label>
+                    <div class="range-row">
+                        <input type="number" id="fMontoMin" placeholder="Mínimo">
+                        <input type="number" id="fMontoMax" placeholder="Máximo">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results-header">
+            <div class="results-count" id="resultsCount"></div>
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <span>buscando...</span>
+            </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid"></div>
+
+        <div class="empty-state" id="emptyState">
+            <div class="icon">◎</div>
+            <p id="emptyMsg">Ingresa un término para comenzar la búsqueda.</p>
+        </div>
+
+    </div>
+
+    <!-- MODAL DETALLE -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = '';  // mismo origen — FastAPI sirve este HTML
+
+        //  UTILS 
+        const fmt = (v) => v != null && v !== '' ? v : '—';
+        const fmtMoney = (v) => v != null && v !== 0
+            ? 'S/ ' + Number(v).toLocaleString('es-PE', { minimumFractionDigits: 2 })
+            : '—';
+        const fmtPct = (v) => v != null ? Number(v).toFixed(1) + '%' : '—';
+
+        function estadoClass(e) {
+            if (!e) return '';
+            const l = e.toLowerCase();
+            if (l.includes('finaliz')) return 'estado-fin';
+            if (l.includes('ejecuc')) return 'estado-eje';
+            if (l.includes('paraliz')) return 'estado-par';
+            return '';
+        }
+
+        async function fetchJSON(url) {
+            const r = await fetch(API + url);
+            if (!r.ok) throw new Error(await r.text());
+            return r.json();
+        }
+
+        function populateSelect(sel, items) {
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">Todos</option>';
+            items.forEach(v => {
+                const o = document.createElement('option');
+                o.value = v; o.textContent = v;
+                sel.appendChild(o);
+            });
+            if (cur) sel.value = cur;
+        }
+
+        //  HEALTH CHECK ─
+        async function checkHealth() {
+            try {
+                const d = await fetchJSON('/health');
+                document.getElementById('statusDot').className = 'status-dot ok';
+                document.getElementById('statusText').textContent = 'db conectada';
+            } catch {
+                document.getElementById('statusDot').className = 'status-dot err';
+                document.getElementById('statusText').textContent = 'sin conexión';
+            }
+        }
+
+        //  CARGAR SELECTS 
+        async function loadSelects() {
+            const [deptos, niveles, sectores, naturalezas, tipo1, modalidades, estados] =
+                await Promise.all([
+                    fetchJSON('/selects/departamentos'),
+                    fetchJSON('/selects/niveles-gobierno'),
+                    fetchJSON('/selects/sectores'),
+                    fetchJSON('/selects/naturalezas'),
+                    fetchJSON('/selects/tipos-nivel-1'),
+                    fetchJSON('/selects/modalidades'),
+                    fetchJSON('/selects/estados'),
+                ]);
+
+            populateSelect(document.getElementById('fDepartamento'), deptos);
+            populateSelect(document.getElementById('fNivel'), niveles);
+            populateSelect(document.getElementById('fSector'), sectores);
+            populateSelect(document.getElementById('fNaturaleza'), naturalezas);
+            populateSelect(document.getElementById('fTipo1'), tipo1);
+            populateSelect(document.getElementById('fModalidad'), modalidades);
+            populateSelect(document.getElementById('fEstado'), estados);
+        }
+
+        //  CASCADA DEPARTAMENTO → PROVINCIA → DISTRITO ─
+        document.getElementById('fDepartamento').addEventListener('change', async (e) => {
+            const d = e.target.value;
+            document.getElementById('fProvincia').innerHTML = '<option value="">Todas</option>';
+            document.getElementById('fDistrito').innerHTML = '<option value="">Todos</option>';
+            if (!d) return;
+            const provs = await fetchJSON('/selects/provincias?departamento=' + encodeURIComponent(d));
+            populateSelect(document.getElementById('fProvincia'), provs);
+        });
+
+        document.getElementById('fProvincia').addEventListener('change', async (e) => {
+            const p = e.target.value;
+            document.getElementById('fDistrito').innerHTML = '<option value="">Todos</option>';
+            if (!p) return;
+            const dists = await fetchJSON('/selects/distritos?provincia=' + encodeURIComponent(p));
+            populateSelect(document.getElementById('fDistrito'), dists);
+        });
+
+        document.getElementById('fTipo1').addEventListener('change', async (e) => {
+            const t = e.target.value;
+            document.getElementById('fTipo2').innerHTML = '<option value="">Todos</option>';
+            if (!t) return;
+            const t2 = await fetchJSON('/selects/tipos-nivel-2?nivel1=' + encodeURIComponent(t));
+            populateSelect(document.getElementById('fTipo2'), t2);
+        });
+
+        //  TOGGLE FILTROS 
+        document.getElementById('filtersToggle').addEventListener('click', () => {
+            const toggle = document.getElementById('filtersToggle');
+            const grid = document.getElementById('filtersGrid');
+            toggle.classList.toggle('open');
+            grid.classList.toggle('open');
+        });
+
+        //  BUSCAR 
+        async function buscar() {
+            const texto = document.getElementById('queryInput').value.trim();
+            if (!texto) return;
+
+            const btn = document.getElementById('btnSearch');
+            btn.disabled = true;
+            document.getElementById('loader').classList.add('active');
+            document.getElementById('resultsCount').textContent = '';
+            document.getElementById('resultsGrid').innerHTML = '';
+            document.getElementById('emptyState').classList.remove('active');
+
+            const body = {
+                texto,
+                top: parseInt(document.getElementById('topSelect').value),
+                departamento: document.getElementById('fDepartamento').value || null,
+                provincia: document.getElementById('fProvincia').value || null,
+                distrito: document.getElementById('fDistrito').value || null,
+                nivel_de_gobierno: document.getElementById('fNivel').value || null,
+                sector_de_la_entidad: document.getElementById('fSector').value || null,
+                naturaleza_de_la_obra: document.getElementById('fNaturaleza').value || null,
+                tipo_de_obra_clasificador_nivel_1: document.getElementById('fTipo1').value || null,
+                tipo_de_obra_clasificador_nivel_2: document.getElementById('fTipo2').value || null,
+                modalidad_de_ejecucion_de_la_obra: document.getElementById('fModalidad').value || null,
+                estado_de_ejecucion: document.getElementById('fEstado').value || null,
+                monto_min: document.getElementById('fMontoMin').value ? parseFloat(document.getElementById('fMontoMin').value) : null,
+                monto_max: document.getElementById('fMontoMax').value ? parseFloat(document.getElementById('fMontoMax').value) : null,
+            };
+
+            try {
+                const results = await fetch(API + '/buscar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                }).then(r => r.json());
+
+                renderResults(results);
+            } catch (e) {
+                document.getElementById('emptyState').classList.add('active');
+                document.getElementById('emptyMsg').textContent = 'Error al conectar con la API.';
+            } finally {
+                btn.disabled = false;
+                document.getElementById('loader').classList.remove('active');
+            }
+        }
+
+        function renderResults(results) {
+            const grid = document.getElementById('resultsGrid');
+            const count = document.getElementById('resultsCount');
+            const empty = document.getElementById('emptyState');
+
+            if (!results.length) {
+                empty.classList.add('active');
+                document.getElementById('emptyMsg').textContent = 'Sin resultados para esta búsqueda.';
+                count.innerHTML = '';
+                return;
+            }
+
+            count.innerHTML = `<strong>${results.length}</strong> resultado${results.length > 1 ? 's' : ''}`;
+
+            grid.innerHTML = results.map((o, i) => {
+                const sim = (o.similitud * 100).toFixed(1);
+                const avance = o.avance_fisico_real_acumulado ?? 0;
+                const eClass = estadoClass(o.estado_de_ejecucion);
+
+                return `
+    <div class="card" style="animation-delay:${i * 0.04}s"
+         onclick="verDetalle('${o.codigo_infobras}')">
+      <div class="card-top">
+        <div class="card-nombre">${fmt(o.nombre_de_obra)}</div>
+        <div class="sim-badge">${sim}% match</div>
+      </div>
+      <div class="card-meta">
+        ${o.departamento ? `<span>📍 ${o.departamento}${o.provincia ? ' / ' + o.provincia : ''}</span>` : ''}
+        ${o.entidad_publica ? `<span>🏛 ${o.entidad_publica}</span>` : ''}
+        ${o.estado_de_ejecucion ? `<span class="tag ${eClass}">${o.estado_de_ejecucion}</span>` : ''}
+        ${o.modalidad_de_ejecucion_de_la_obra ? `<span class="tag">${o.modalidad_de_ejecucion_de_la_obra}</span>` : ''}
+        ${o.tipo_de_obra_clasificador_nivel_1 ? `<span class="tag">${o.tipo_de_obra_clasificador_nivel_1}</span>` : ''}
+      </div>
+      <div class="card-bottom">
+        <div class="monto">${fmtMoney(o.monto_del_contrato_en_soles)}</div>
+        <div class="avance-bar-wrap">
+          <div class="avance-bar">
+            <div class="avance-fill" style="width:${Math.min(avance, 100)}%"></div>
+          </div>
+          <span class="avance-pct">${fmtPct(avance)}</span>
+        </div>
+      </div>
+    </div>`;
+            }).join('');
+        }
+
+        //  DETALLE MODAL 
+        async function verDetalle(codigo) {
+            const overlay = document.getElementById('modalOverlay');
+            const content = document.getElementById('modalContent');
+            content.innerHTML = '<div class="loader active" style="justify-content:center;padding:40px"><div class="spinner"></div></div>';
+            overlay.classList.add('active');
+
+            try {
+                const o = await fetchJSON('/obras/' + encodeURIComponent(codigo));
+
+                content.innerHTML = `
+      <h2>${fmt(o.nombre_de_obra)}</h2>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Identificación</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Código Infobras</div>
+            <div class="detail-value highlight">${fmt(o.codigo_infobras)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">CUI</div>
+            <div class="detail-value">${fmt(o.codigo_unico_de_inversion)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">SNIP</div>
+            <div class="detail-value">${fmt(o.codigo_snip)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Naturaleza</div>
+            <div class="detail-value">${fmt(o.naturaleza_de_la_obra)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Clasificación</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Nivel 1</div>
+            <div class="detail-value">${fmt(o.tipo_de_obra_clasificador_nivel_1)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Nivel 2</div>
+            <div class="detail-value">${fmt(o.tipo_de_obra_clasificador_nivel_2)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Nivel 3</div>
+            <div class="detail-value">${fmt(o.tipo_de_obra_clasificador_nivel_3)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Modalidad</div>
+            <div class="detail-value">${fmt(o.modalidad_de_ejecucion_de_la_obra)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Entidad</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Entidad pública</div>
+            <div class="detail-value">${fmt(o.entidad_publica)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Nivel de gobierno</div>
+            <div class="detail-value">${fmt(o.nivel_de_gobierno)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Sector</div>
+            <div class="detail-value">${fmt(o.sector_de_la_entidad)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Ubicación</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Departamento</div>
+            <div class="detail-value">${fmt(o.departamento)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Provincia</div>
+            <div class="detail-value">${fmt(o.provincia)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Distrito</div>
+            <div class="detail-value">${fmt(o.distrito)}</div>
+          </div>
+          <div class="detail-item" style="grid-column:span 2">
+            <div class="detail-label">Referencia</div>
+            <div class="detail-value">${fmt(o.direccion_o_informacion_de_referencia)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Montos</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Monto viable aprobado</div>
+            <div class="detail-value highlight">${fmtMoney(o.monto_viable_aprobado)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Monto contrato</div>
+            <div class="detail-value highlight">${fmtMoney(o.monto_del_contrato_en_soles)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Costo final obra</div>
+            <div class="detail-value">${fmtMoney(o.costo_de_la_obra_en_soles)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Adicionales</div>
+            <div class="detail-value">${fmtMoney(o.monto_de_adicionales_de_obra_en_soles)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Deductivos</div>
+            <div class="detail-value">${fmtMoney(o.monto_de_deductivos_de_obra_en_soles)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Devengado total</div>
+            <div class="detail-value">${fmtMoney(o.monto_total_devengado_del_proyecto)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Ejecución</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Estado</div>
+            <div class="detail-value highlight">${fmt(o.estado_de_ejecucion)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Avance físico real</div>
+            <div class="detail-value">${fmtPct(o.avance_fisico_real_acumulado)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Avance financiero</div>
+            <div class="detail-value">${fmtPct(o.porcentaje_de_ejecucion_financiera)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Plazo (días)</div>
+            <div class="detail-value">${fmt(o.plazo_de_ejecucion_en_dias)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Inicio</div>
+            <div class="detail-value">${fmt(o.fecha_de_inicio_de_obra)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Fin programado</div>
+            <div class="detail-value">${fmt(o.fecha_finalizacion_programada_de_obra)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Fin real</div>
+            <div class="detail-value">${fmt(o.fecha_de_finalizacion_real)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">N° modificaciones</div>
+            <div class="detail-value">${fmt(o.n_de_modificaciones)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">N° controversias</div>
+            <div class="detail-value">${fmt(o.n_de_controversias)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Informes control</div>
+            <div class="detail-value">${fmt(o.n_informes_de_control)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Contratista</div>
+        <div class="detail-grid">
+          <div class="detail-item" style="grid-column:span 2">
+            <div class="detail-label">Empresa / Consorcio</div>
+            <div class="detail-value">${fmt(o.nombre_o_razon_social_de_la_empresa_o_consorcio)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">RUC</div>
+            <div class="detail-value">${fmt(o.ruc)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+            } catch {
+                content.innerHTML = '<p style="color:var(--danger);padding:20px">Error al cargar el detalle.</p>';
+            }
+        }
+
+        document.getElementById('modalClose').addEventListener('click', () => {
+            document.getElementById('modalOverlay').classList.remove('active');
+        });
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget)
+                document.getElementById('modalOverlay').classList.remove('active');
+        });
+
+        // Enter en el input
+        document.getElementById('queryInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') buscar();
+        });
+
+        document.getElementById('btnSearch').addEventListener('click', buscar);
+
+        //  INIT 
+        document.getElementById('emptyState').classList.add('active');
+        document.getElementById('emptyMsg').textContent = 'Ingresa un término para comenzar la búsqueda.';
+
+        checkHealth();
+        loadSelects();
+    </script>
+</body>
+
+</html>
