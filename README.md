@@ -50,7 +50,7 @@ erDiagram
     obras_sql ||--|| obras_embeddings : "tiene"
 
 
-    
+
 ```
 
 
@@ -219,11 +219,11 @@ fecha_de_inicio / fecha_de_finalizacion
 
 La documentación completa del proyecto se encuentra en la carpeta [`docs/`](./docs/):
 
-- [Visión General y Arquitectura](./docs/arquitectura.md)
-- [Proceso de Preprocesamiento de Datos](./docs/preprocesamiento.md)
-- [API RESTful y Lógica de Backend](./docs/api.md)
-- [Interfaz de Usuario (Frontend)](./docs/frontend.md)
-- [Despliegue y Configuración del Entorno](./docs/despliegue.md)
+- [Visión General y Arquitectura](./docs/1_ARQUITECTURA.md)
+- [Proceso de Preprocesamiento de Datos](./docs/2_PREPROCESAMIENTO.md)
+- [API RESTful y Lógica de Backend](./docs/3_LOGICA%20BACKEND.md)
+- [Interfaz de Usuario (Frontend)](./docs/4_UI.md)
+- [Despliegue y Configuración del Entorno](./docs/5_DEPLOYMENT.md)
 
 ---
 
